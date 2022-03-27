@@ -3,16 +3,10 @@
   "version": "1.0.0",
   "description": "Todo: Insert description here!",
   "main": "MMM-LeagueOfLegends.js",
-  "author": "JulianEgbert",
+  "author": "Julian Egbert",
   "license": "MIT",
-  "devDependencies": {
-    "grunt": "latest",
-    "grunt-eslint": "latest",
-    "grunt-jsonlint": "latest",
-    "grunt-markdownlint": "^1.0.13",
-    "grunt-stylelint": "latest",
-    "grunt-yamllint": "latest",
-    "stylelint-config-standard": "latest",
-    "time-grunt": "latest"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JulianEgbert/MMM-LeagueOfLegends"
   }
 }
