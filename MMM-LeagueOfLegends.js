@@ -9,6 +9,12 @@ Module.register("MMM-LeagueOfLegends", {
 	defaults: {
 		updateInterval: 360000,
 		region: "euw1",
+		imageFolder: "emblems", // emblems, tiers
+		showSummonerName: true,
+		showDetailedRankInfo: true,
+		queueType: "RANKED_SOLO_5x5", // RANKED_FLEX_SR, RANKED_SOLO_5x5
+		iconSize: 256,
+		showOtherQueueIfNotFound: true,
 		apiKey: "", // Required
 		summonerName: "", // Required
 	},
@@ -19,6 +25,7 @@ Module.register("MMM-LeagueOfLegends", {
 		var self = this;
 		var summonerData = null;
 		var rankData = null;
+		var queueData = null;
 		var dataRequest = null;
 
 		//Flag for check if module is loaded
@@ -66,24 +73,58 @@ Module.register("MMM-LeagueOfLegends", {
 		request.send();
 	},
 
+	prepareQueueData: function() {
+		if (!this.rankData || !Array.isArray(this.rankData) || this.rankData.length === 0) {
+			return;
+		}
+		const queue = this.rankData.filter((queue) => queue.queueType === this.config.queueType);
+		if (queue.length === 0 && this.config.showOtherQueueIfNotFound) { // Didn't find the queue specified in config:
+			this.queueData = this.rankData[0];
+			return;
+		}
+		this.queueData = queue[0];
+	},
+
+	getRankTier: function() {
+		return this.queueData ? this.queueData.tier.toLowerCase() : "unranked";
+	},
+
+	getTierDiv: function() {
+		const informationDiv = document.createElement("div");
+
+		var tierLabel = document.createElement("label");
+		const q = this.queueData;
+		tierLabel.innerHTML = `${q.tier} ${q.rank} - ${q.leaguePoints} LP`;
+		informationDiv.appendChild(tierLabel);
+
+		return informationDiv;
+	},
+
 	getDom: function() {
 		var self = this;
 
 		// create element wrapper for show into the module
 		var wrapper = document.createElement("div");
-		// If this.rankData is not empty
-		if (this.rankData) {
-			var wrapperDataRequest = document.createElement("div");
-			wrapperDataRequest.innerHTML = JSON.stringify(this.rankData, null, 2);
+		// If queueData is available
+		if (this.queueData) {
+			if (this.config.showSummonerName) {
+				var topWrapper = document.createElement("div");
+				var summonerNameLabel = document.createElement("label");
+				summonerNameLabel.innerHTML = this.summonerData.name;
+				topWrapper.appendChild(summonerNameLabel);
+				wrapper.appendChild(topWrapper);
+			}
 
-			var summonerNameLabel = document.createElement("label");
-			// Use translate function
-			//             this id defined in translations files
-			summonerNameLabel.innerHTML = this.summonerData.name;
+			let tierIcon = document.createElement('img');
+			const rankTier = this.getRankTier();
+			tierIcon.src = this.file(`img/${this.config.imageFolder}/${rankTier}.png`);
+			tierIcon.alt = rankTier;
+			tierIcon.width = tierIcon.height = this.config.iconSize;
 
-
-			wrapper.appendChild(summonerNameLabel);
-			wrapper.appendChild(wrapperDataRequest);
+			wrapper.appendChild(tierIcon);
+			if (this.config.showDetailedRankInfo) {
+				wrapper.appendChild(this.getTierDiv());
+			}
 		}
 
 		return wrapper;
@@ -106,7 +147,7 @@ Module.register("MMM-LeagueOfLegends", {
 
 	processRankData: function(self, data) {
 		self.rankData = data;
-		console.log(self.rankData);
+		self.prepareQueueData();
 		if (self.loaded === false) { self.updateDom(self.config.animationSpeed) ; }
 		self.loaded = true;
 	}
