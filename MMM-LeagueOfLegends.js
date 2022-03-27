@@ -106,7 +106,7 @@ Module.register("MMM-LeagueOfLegends", {
 		// create element wrapper for show into the module
 		var wrapper = document.createElement("div");
 		// If queueData is available
-		if (this.queueData) {
+		if (this.rankData) {
 			if (this.config.showSummonerName) {
 				var topWrapper = document.createElement("div");
 				var summonerNameLabel = document.createElement("label");
@@ -124,6 +124,17 @@ Module.register("MMM-LeagueOfLegends", {
 			wrapper.appendChild(tierIcon);
 			if (this.config.showDetailedRankInfo) {
 				wrapper.appendChild(this.getTierDiv());
+			}
+		} else { // No data available, display information
+			const errorWrapper = document.createElement("div");
+			errorWrapper.innerHTML = `${this.name}: An error occured: There is not data to display.`;
+			wrapper.appendChild(errorWrapper);
+			const description = document.createElement("paragraph");
+			wrapper.appendChild(description);
+			if (!this.summonerData) {
+				description.innerHTML = "No summoner Data present. Please check your API-Key, Region and Summoner Name.";
+			} else {
+				description.innerHTML = `This is your summoner Data: ${JSON.stringify(this.summonerData)}. Something else went wrong. Maybe you are unranked?`;
 			}
 		}
 
