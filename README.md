@@ -4,6 +4,10 @@ This is a module for the [MagicMirror²](https://github.com/MichMich/MagicMirror
 
 A module to display your League Of Legends stats on your MagicMirror².
 
+This is an example that uses this module 3 times: On the left hand side it displays the current rank in Solo and Flex Queue. In the middle it shows a match history of the latest 10 games.
+
+![Preview](./Screenshot.png)
+
 ## Requirements
 
 1. Riotgames Developer Profile
