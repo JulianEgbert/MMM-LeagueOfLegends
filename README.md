@@ -24,6 +24,7 @@ You are then ready to use this module.
 ## Using the module
 
 To use this module, add the following configuration block to the modules array in the `config/config.js` file:
+
 ```js
 var config = {
     modules: [

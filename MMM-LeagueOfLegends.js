@@ -108,14 +108,17 @@ Module.register("MMM-LeagueOfLegends", {
 		tierIcon.alt = rankTier;
 		tierIcon.width = tierIcon.height = this.config.iconSize;
 		wrapper.appendChild(tierIcon);
-
 		// create the text with Tier, Division and LP if requested:
 		if (this.config.showDetailedRankInfo) {
 			const informationDiv = document.createElement("div");
 
 			var tierLabel = document.createElement("label");
 			const q = this.queueData;
-			tierLabel.innerHTML = `${q.tier} ${q.rank} - ${q.leaguePoints} LP`;
+			if (q) {
+				tierLabel.innerHTML = `${q.tier} ${q.rank} - ${q.leaguePoints} LP`;
+			} else {
+				tierLabel.innerHTML = "Unranked";
+			}
 			informationDiv.appendChild(tierLabel);
 			wrapper.appendChild(informationDiv);
 		}
@@ -128,6 +131,9 @@ Module.register("MMM-LeagueOfLegends", {
 		// create the icon:
 		var statsLabel = document.createElement("label");
 		const q = this.queueData;
+		if (!q) {
+			return wrapper;
+		}
 		const winrate = Math.round(q.wins * 100 / (q.wins + q.losses));
 		statsLabel.innerHTML = `${q.wins}W ${q.losses}L, ${winrate}% `;
 		wrapper.appendChild(statsLabel);
