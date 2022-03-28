@@ -79,4 +79,5 @@ Here is an overview of all the supported display elements. They are either just 
 | `tier`        | Displays the icon of your rank. <br> **Config**: `hideDetailedRankInfo`: *boolean* (**default** `false`), wether or not to display the tier name, division and LP.
 | `stats`       | Displays the stats for this queue (Wins, Losses, Winrate). <br> **Config**: `showHotStreak`: *boolean* (**default** `false`), wether or not to display a flame icon, when the summoner has a hotstreak (provided by the riot API).
 | `summoner`    | Displays the summoner name. <br> **Config**: `showLevel`: *boolean* (**default** `false`), wether or not to display the level of the user.
-| `history`     | TODO
+| `history`     | Displays the latest games with brief information. <br> **Config**: `count` (default `5`): number of matches to display. <br> `showTime` (default `true`): display date of game and game duration. <br> `showStats` (default `true`): display stats of the game (kda and cs). <br> `showQueue` (default `true`): display queue and win or loss. <br> `showChampion` (default `true`): display the champion splashart. <br> `iconSize` (default `64`): size of the champion icon in the history <br> `csPerMinute` (default `true`): display cs per minute after cs score.
+

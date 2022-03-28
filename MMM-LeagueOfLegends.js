@@ -9,6 +9,7 @@ Module.register("MMM-LeagueOfLegends", {
 	defaults: {
 		updateInterval: 360000,
 		region: "euw1",
+		matchRegion: "europe",
 		imageFolder: "emblems", // emblems, tiers
 		queueType: "RANKED_SOLO_5x5", // RANKED_FLEX_SR, RANKED_SOLO_5x5
 		iconSize: 256,
@@ -39,13 +40,17 @@ Module.register("MMM-LeagueOfLegends", {
 		var summonerData = null;
 		var rankData = null;
 		var queueData = null;
-		var dataRequest = null;
+		var historyData = null;
+		var matchIds = null;
+		var version = null;
+		var queues = null;
 
 		//Flag for check if module is loaded
 		this.loaded = false;
 
 		// Schedule update timer.
 		this.getSummonerData();
+		this.getGameConstants();
 		setInterval(function() {
 			self.getRankData();
 			self.updateDom();
@@ -58,6 +63,13 @@ Module.register("MMM-LeagueOfLegends", {
 		this.sendRequest(urlApi, this.processSummonerData);
 	},
 
+	getGameConstants: function() {
+		const versionUrl = "https://ddragon.leagueoflegends.com/api/versions.json";
+		const queueUrl = "https://static.developer.riotgames.com/docs/lol/queues.json"
+		this.sendRequest(versionUrl, (self, data) => {self.version = data[0]});
+		this.sendRequest(queueUrl, (self, data) => {self.queues = data});
+	},
+
 	getRankData: function() {
 		if (!this.summonerData) {
 			console.error(self.name, "No data for the summoner found");
@@ -65,6 +77,32 @@ Module.register("MMM-LeagueOfLegends", {
 		var urlApi = `https://${this.config.region}.api.riotgames.com/lol/league/v4/entries/by-summoner/${this.summonerData.id}?api_key=${this.config.apiKey}`;
 
 		this.sendRequest(urlApi, this.processRankData);
+	},
+
+	matchHistoryRequired: function() {
+		const displayElements = this.config.displayElements.filter(element => typeof(element) === "object" && element.name === "history");
+		return displayElements.length > 0;
+	},
+
+	matchHistoryConfig: function() {
+		const historyElements = this.config.displayElements.filter(element => typeof(element) === "object" && element.name === "history");
+		return historyElements[0].config;
+	},
+
+	getHistoryData: function() {
+		if (!this.matchHistoryRequired()) {
+			this.moduleLoaded();
+			return;
+		}
+		if (!this.summonerData) {
+			console.error(self.name, "No data for the summoner found");
+		}
+		const config = {
+			count: 5
+		};
+		Object.assign(config, this.matchHistoryConfig())
+		var urlApi = `https://${this.config.matchRegion}.api.riotgames.com/lol/match/v5/matches/by-puuid/${this.summonerData.puuid}/ids?count=${config.count}&api_key=${this.config.apiKey}`;
+		this.sendRequest(urlApi, this.processHistoryData);
 	},
 
 	sendRequest: function(url, onSuccess) {
@@ -162,6 +200,104 @@ Module.register("MMM-LeagueOfLegends", {
 		return wrapper;
 	},
 
+	getHistoryDiv: function(customConfig) {
+		var config = {
+			showTime: true,
+			showStats: true,
+			showQueue: true,
+			showChampion: true,
+			iconSize: 64,
+			csPerMinute: true,
+		};
+		Object.assign(config, customConfig);
+		const wrapper = document.createElement("table");
+		wrapper.setAttribute("class", "LoL-Matchhistory small")
+		if (!this.historyData) {
+			return wrapper;
+		}
+		this.matchIds.forEach(matchId => {
+			const match = this.historyData[matchId];
+			if (!match)
+				return;
+			wrapper.appendChild(this.getMatchDiv(matchId, config));
+		});
+		return wrapper;
+	},
+
+	getQueueFromId: function(id) {
+		const description = this.queues.filter(queue => queue.queueId === id)[0].description;
+		const d = description.toLowerCase();
+		return d.includes("flex")
+			? "Flex"
+			: (d.includes("solo")
+				? "Solo"
+				: (d.includes("aram")
+					? "ARAM"
+					: description));
+	},
+
+	getMatchDiv: function(matchId, config) {
+		const match = this.historyData[matchId];
+		const matchRow = document.createElement("tr");
+		const summoner = this.getSummonerFromMatch(matchId);
+
+		// Champion Icon
+		if (config.showChampion) {
+			const iconColumn = document.createElement("td");
+			matchRow.appendChild(iconColumn);
+			const championIcon = document.createElement("img");
+			championIcon.src = `http://ddragon.leagueoflegends.com/cdn/${this.version}/img/champion/${summoner.championName}.png`;
+			championIcon.width = championIcon.height = config.iconSize;
+			iconColumn.appendChild(championIcon);
+		}
+
+		// Game Info
+		if (config.showQueue) {
+			const infoColumn = document.createElement("td");
+			matchRow.appendChild(infoColumn);
+			const victoryLabel = document.createElement("div");
+			victoryLabel.innerHTML = summoner.win ? "Victory" : "Defeat";
+			infoColumn.appendChild(victoryLabel);
+			const gameLabel = document.createElement("div");
+			gameLabel.innerHTML = this.getQueueFromId(match.info.queueId);
+			infoColumn.appendChild(gameLabel);
+		}
+
+		// time
+		if (config.showTime) {
+			const timeColumn = document.createElement("td");
+			matchRow.appendChild(timeColumn);
+			const timeLabel = document.createElement("div");
+			const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+			const s = new Date(match.info.gameCreation).toLocaleDateString("de-DE", options);
+			timeLabel.innerHTML = s;
+			timeColumn.appendChild(timeLabel);
+			const durationLabel = document.createElement("div");
+			durationLabel.innerHTML = `${Math.floor(match.info.gameDuration / 60)}:${match.info.gameDuration % 60}`;
+			timeColumn.appendChild(durationLabel);
+		}
+
+		// Player stats
+		if (config.showStats) {
+			const statColumn = document.createElement("td");
+			matchRow.appendChild(statColumn);
+			const kdaLabel = document.createElement("div");
+			kdaLabel.innerHTML = `${summoner.kills}/${summoner.deaths}/${summoner.assists}`;
+			statColumn.appendChild(kdaLabel);
+			const csLabel = document.createElement("div");
+			csLabel.innerHTML = `${summoner.totalMinionsKilled} cs`;
+			if (config.csPerMinute)
+				csLabel.innerHTML += ` (${Math.round(summoner.totalMinionsKilled * 600 / match.info.gameDuration)/10}/min)`;
+			statColumn.appendChild(csLabel);
+		}
+		return matchRow
+	},
+
+	getSummonerFromMatch: function(matchId) {
+		const participants = this.historyData[matchId].info.participants;
+		return participants.filter(p => p.puuid === this.summonerData.puuid)[0];
+	},
+
 	getDom: function() {
 		// create element wrapper for show into the module
 		var wrapper = document.createElement("div");
@@ -218,10 +354,36 @@ Module.register("MMM-LeagueOfLegends", {
 		self.getRankData();
 	},
 
+	moduleLoaded() {
+		if (this.loaded === false) { this.updateDom(this.config.animationSpeed) ; }
+		this.loaded = true;
+	},
+
 	processRankData: function(self, data) {
 		self.rankData = data;
 		self.prepareQueueData();
-		if (self.loaded === false) { self.updateDom(self.config.animationSpeed) ; }
-		self.loaded = true;
+		self.getHistoryData();
+		// self.moduleLoaded(self);
+	},
+
+	processHistoryData: function(self, data) {
+		self.matchIds = data;
+		data.forEach(matchId => {
+			self.getMatchData(matchId);
+		});
+		self.moduleLoaded();
+	},
+
+	getMatchData: function(matchId) {
+		var urlApi = `https://${this.config.matchRegion}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${this.config.apiKey}`;
+		this.sendRequest(urlApi, this.processMatchData);
+	},
+
+	processMatchData: function(self, data) {
+		if (!self.historyData) {
+			self.historyData = {};
+		}
+		self.historyData[data.metadata.matchId] = data;
+		self.updateDom();
 	}
 });
