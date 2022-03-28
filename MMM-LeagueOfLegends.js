@@ -10,13 +10,25 @@ Module.register("MMM-LeagueOfLegends", {
 		updateInterval: 360000,
 		region: "euw1",
 		imageFolder: "emblems", // emblems, tiers
-		showDetailedRankInfo: true,
 		queueType: "RANKED_SOLO_5x5", // RANKED_FLEX_SR, RANKED_SOLO_5x5
 		iconSize: 256,
 		showOtherQueueIfNotFound: true,
 		apiKey: "", // Required
 		summonerName: "", // Required
-		displayElements: ["tier", "stats"],
+		displayElements: [
+			{
+				name: "tier",
+				config: {
+					hideDetailedRankInfo: false
+				}
+			},
+			{
+				name: "stats",
+				config: {
+					showHotStreak: true
+				}
+			}
+		],
 		showHotStreak: false,
 	},
 
@@ -90,16 +102,19 @@ Module.register("MMM-LeagueOfLegends", {
 		return this.queueData ? this.queueData.tier.toLowerCase() : "unranked";
 	},
 
-	getSummonerDiv: function() {
+	getSummonerDiv: function(config) {
 		const wrapper = document.createElement("div");
 		var summonerNameLabel = document.createElement("label");
 		summonerNameLabel.innerHTML = this.summonerData.name;
+		if (config && config.showLevel) {
+			summonerNameLabel.innerHTML += ` (Level ${this.summonerData.summonerLevel})`;
+		}
 		wrapper.appendChild(summonerNameLabel);
 
 		return wrapper;
 	},
 
-	getTierDiv: function() {
+	getTierDiv: function(config) {
 		const wrapper = document.createElement("div");
 		// create the icon:
 		let tierIcon = document.createElement("img");
@@ -108,25 +123,26 @@ Module.register("MMM-LeagueOfLegends", {
 		tierIcon.alt = rankTier;
 		tierIcon.width = tierIcon.height = this.config.iconSize;
 		wrapper.appendChild(tierIcon);
-		// create the text with Tier, Division and LP if requested:
-		if (this.config.showDetailedRankInfo) {
-			const informationDiv = document.createElement("div");
 
-			var tierLabel = document.createElement("label");
-			const q = this.queueData;
-			if (q) {
-				tierLabel.innerHTML = `${q.tier} ${q.rank} - ${q.leaguePoints} LP`;
-			} else {
-				tierLabel.innerHTML = "Unranked";
-			}
-			informationDiv.appendChild(tierLabel);
-			wrapper.appendChild(informationDiv);
+		if (config && config.hideDetailedRankInfo) {
+			return wrapper;
 		}
+		// create the text with Tier, Division and LP if requested:
+		const informationDiv = document.createElement("div");
+		var tierLabel = document.createElement("label");
+		const q = this.queueData;
+		if (q) {
+			tierLabel.innerHTML = `${q.tier} ${q.rank} - ${q.leaguePoints} LP`;
+		} else {
+			tierLabel.innerHTML = "Unranked";
+		}
+		informationDiv.appendChild(tierLabel);
+		wrapper.appendChild(informationDiv);
 
 		return wrapper;
 	},
 
-	getStatsDiv: function() {
+	getStatsDiv: function(config) {
 		const wrapper = document.createElement("div");
 		// create the icon:
 		var statsLabel = document.createElement("label");
@@ -137,7 +153,7 @@ Module.register("MMM-LeagueOfLegends", {
 		const winrate = Math.round(q.wins * 100 / (q.wins + q.losses));
 		statsLabel.innerHTML = `${q.wins}W ${q.losses}L, ${winrate}% `;
 		wrapper.appendChild(statsLabel);
-		if (this.config.showHotStreak && q["hotStreak"]) {
+		if (config && config.showHotStreak && q["hotStreak"]) {
 			var hotStreakLabel = document.createElement("span");
 			hotStreakLabel.setAttribute("class", "fa fa-fire");
 			wrapper.appendChild(hotStreakLabel);
@@ -152,15 +168,19 @@ Module.register("MMM-LeagueOfLegends", {
 		// If rankData is available
 		if (this.rankData) {
 			this.config.displayElements.forEach(displayElement => {
-				switch(displayElement) {
+				const name = (typeof(displayElement) === "string" ? displayElement.toLowerCase() : displayElement.name);
+				switch(name) {
 					case "tier":
-						wrapper.appendChild(this.getTierDiv());
+						wrapper.appendChild(this.getTierDiv(displayElement.config));
 						break;
 					case "stats":
-						wrapper.appendChild(this.getStatsDiv());
+						wrapper.appendChild(this.getStatsDiv(displayElement.config));
 						break;
 					case "summoner":
-						wrapper.appendChild(this.getSummonerDiv());
+						wrapper.appendChild(this.getSummonerDiv(displayElement.config));
+						break;
+					case "history":
+						wrapper.appendChild(this.getHistoryDiv(displayElement.config));
 						break;
 					default:
 						break;

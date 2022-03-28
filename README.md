@@ -36,7 +36,20 @@ var config = {
           region: "euw1",
           queueType: "RANKED_SOLO_5x5",
           apiKey: "<YOUR_RIOT_API_KEY>",
-          displayElements: ["tier", "stats"],
+          displayElements: [
+            {
+              name: "tier",
+              config: {
+                hideDetailedRankInfo: true
+              }
+            },
+            {
+              name: "stats",
+              config: {
+                showHotStreak: true
+              }
+            }
+          ],
         }
       },
     ]
@@ -49,9 +62,21 @@ var config = {
 |----------------- |-----------
 | `apiKey`         | *Required* Your own API-Key for the Riot API.
 | `summonerName`   | *Required* Your summoner name.
-| `displayElements`   | *Required* Your summoner name.
+| `displayElements`| *Required* The elements that should be displayed in this module. **Type**: Array of objects or strings, see below.
 | `region`         | *Required* The region you are playing in (as stated in the riot api description). <br> **Default**: `euw1`
 | `imageFolder`    | *Optional* The path to the folder with the tier icons. <br> **Values**: `"emblems"` (**default**, new icons), `"tiers"` (old icons)
 | `iconSize`       | *Optional* Size of the tier icon. <br> **Default:** 256
 | `queueType`      | *Optional* The queue you want to display your Elo from. <br> **Values**: `"RANKED_SOLO_5x5"` (**default**, Solo-Queue), `"RANKED_FLEX_SR"` (Flex-Queue)
 | `showOtherQueueIfNotFound` | *Optional* Whether the module should display another queue elo if specified queue is not found. <br>**Type:** Boolean, **Default:** true
+
+
+## Display Elements
+
+Here is an overview of all the supported display elements. They are either just a name or an object with `name` and `config` for optional configurations. If no config is provided, default values will be used.
+
+| Option        | Description
+|---------------|-----------
+| `tier`        | Displays the icon of your rank. <br> **Config**: `hideDetailedRankInfo`: *boolean* (**default** `false`), wether or not to display the tier name, division and LP.
+| `stats`       | Displays the stats for this queue (Wins, Losses, Winrate). <br> **Config**: `showHotStreak`: *boolean* (**default** `false`), wether or not to display a flame icon, when the summoner has a hotstreak (provided by the riot API).
+| `summoner`    | Displays the summoner name. <br> **Config**: `showLevel`: *boolean* (**default** `false`), wether or not to display the level of the user.
+| `history`     | TODO
