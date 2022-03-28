@@ -1,7 +1,7 @@
 {
   "name": "MMM-LeagueOfLegends",
   "version": "1.0.0",
-  "description": "Todo: Insert description here!",
+  "description": "A module to display your League Of Legends stats on your MagicMirror².",
   "main": "MMM-LeagueOfLegends.js",
   "author": "Julian Egbert",
   "license": "MIT",
