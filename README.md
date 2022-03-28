@@ -34,7 +34,8 @@ var config = {
           summonerName: "<YOUR_SUMMONER_NAME>",
           region: "euw1",
           queueType: "RANKED_SOLO_5x5",
-          apiKey: "<YOUR_RIOT_API_KEY>"
+          apiKey: "<YOUR_RIOT_API_KEY>",
+          displayElements: ["tier", "stats"],
         }
       },
     ]
@@ -47,9 +48,9 @@ var config = {
 |----------------- |-----------
 | `apiKey`         | *Required* Your own API-Key for the Riot API.
 | `summonerName`   | *Required* Your summoner name.
+| `displayElements`   | *Required* Your summoner name.
 | `region`         | *Required* The region you are playing in (as stated in the riot api description). <br> **Default**: `euw1`
 | `imageFolder`    | *Optional* The path to the folder with the tier icons. <br> **Values**: `"emblems"` (**default**, new icons), `"tiers"` (old icons)
 | `iconSize`       | *Optional* Size of the tier icon. <br> **Default:** 256
 | `queueType`      | *Optional* The queue you want to display your Elo from. <br> **Values**: `"RANKED_SOLO_5x5"` (**default**, Solo-Queue), `"RANKED_FLEX_SR"` (Flex-Queue)
 | `showOtherQueueIfNotFound` | *Optional* Whether the module should display another queue elo if specified queue is not found. <br>**Type:** Boolean, **Default:** true
-

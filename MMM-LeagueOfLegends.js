@@ -10,13 +10,14 @@ Module.register("MMM-LeagueOfLegends", {
 		updateInterval: 360000,
 		region: "euw1",
 		imageFolder: "emblems", // emblems, tiers
-		showSummonerName: true,
 		showDetailedRankInfo: true,
 		queueType: "RANKED_SOLO_5x5", // RANKED_FLEX_SR, RANKED_SOLO_5x5
 		iconSize: 256,
 		showOtherQueueIfNotFound: true,
 		apiKey: "", // Required
 		summonerName: "", // Required
+		displayElements: ["tier", "stats"],
+		showHotStreak: false,
 	},
 
 	requiresVersion: "2.1.0", // Required version of MagicMirror
@@ -89,42 +90,77 @@ Module.register("MMM-LeagueOfLegends", {
 		return this.queueData ? this.queueData.tier.toLowerCase() : "unranked";
 	},
 
+	getSummonerDiv: function() {
+		const wrapper = document.createElement("div");
+		var summonerNameLabel = document.createElement("label");
+		summonerNameLabel.innerHTML = this.summonerData.name;
+		wrapper.appendChild(summonerNameLabel);
+
+		return wrapper;
+	},
+
 	getTierDiv: function() {
-		const informationDiv = document.createElement("div");
+		const wrapper = document.createElement("div");
+		// create the icon:
+		let tierIcon = document.createElement("img");
+		const rankTier = this.getRankTier();
+		tierIcon.src = this.file(`img/${this.config.imageFolder}/${rankTier}.png`);
+		tierIcon.alt = rankTier;
+		tierIcon.width = tierIcon.height = this.config.iconSize;
+		wrapper.appendChild(tierIcon);
 
-		var tierLabel = document.createElement("label");
+		// create the text with Tier, Division and LP if requested:
+		if (this.config.showDetailedRankInfo) {
+			const informationDiv = document.createElement("div");
+
+			var tierLabel = document.createElement("label");
+			const q = this.queueData;
+			tierLabel.innerHTML = `${q.tier} ${q.rank} - ${q.leaguePoints} LP`;
+			informationDiv.appendChild(tierLabel);
+			wrapper.appendChild(informationDiv);
+		}
+
+		return wrapper;
+	},
+
+	getStatsDiv: function() {
+		const wrapper = document.createElement("div");
+		// create the icon:
+		var statsLabel = document.createElement("label");
 		const q = this.queueData;
-		tierLabel.innerHTML = `${q.tier} ${q.rank} - ${q.leaguePoints} LP`;
-		informationDiv.appendChild(tierLabel);
+		const winrate = Math.round(q.wins * 100 / (q.wins + q.losses));
+		statsLabel.innerHTML = `${q.wins}W ${q.losses}L, ${winrate}% `;
+		wrapper.appendChild(statsLabel);
+		if (this.config.showHotStreak && q["hotStreak"]) {
+			var hotStreakLabel = document.createElement("span");
+			hotStreakLabel.setAttribute("class", "fa fa-fire");
+			wrapper.appendChild(hotStreakLabel);
+		}
 
-		return informationDiv;
+		return wrapper;
 	},
 
 	getDom: function() {
-		var self = this;
-
 		// create element wrapper for show into the module
 		var wrapper = document.createElement("div");
-		// If queueData is available
+		// If rankData is available
 		if (this.rankData) {
-			if (this.config.showSummonerName) {
-				var topWrapper = document.createElement("div");
-				var summonerNameLabel = document.createElement("label");
-				summonerNameLabel.innerHTML = this.summonerData.name;
-				topWrapper.appendChild(summonerNameLabel);
-				wrapper.appendChild(topWrapper);
-			}
+			this.config.displayElements.forEach(displayElement => {
+				switch(displayElement) {
+					case "tier":
+						wrapper.appendChild(this.getTierDiv());
+						break;
+					case "stats":
+						wrapper.appendChild(this.getStatsDiv());
+						break;
+					case "summoner":
+						wrapper.appendChild(this.getSummonerDiv());
+						break;
+					default:
+						break;
+				}
+			});
 
-			let tierIcon = document.createElement('img');
-			const rankTier = this.getRankTier();
-			tierIcon.src = this.file(`img/${this.config.imageFolder}/${rankTier}.png`);
-			tierIcon.alt = rankTier;
-			tierIcon.width = tierIcon.height = this.config.iconSize;
-
-			wrapper.appendChild(tierIcon);
-			if (this.config.showDetailedRankInfo) {
-				wrapper.appendChild(this.getTierDiv());
-			}
 		} else { // No data available, display information
 			const errorWrapper = document.createElement("div");
 			errorWrapper.innerHTML = `${this.name}: An error occured: There is not data to display.`;
