@@ -100,7 +100,7 @@ Module.register("MMM-LeagueOfLegends", {
 		const config = {
 			count: 5
 		};
-		Object.assign(config, this.matchHistoryConfig())
+		Object.assign(config, this.matchHistoryConfig());
 		var urlApi = `https://${this.config.matchRegion}.api.riotgames.com/lol/match/v5/matches/by-puuid/${this.summonerData.puuid}/ids?count=${config.count}&api_key=${this.config.apiKey}`;
 		this.sendRequest(urlApi, this.processHistoryData);
 	},
@@ -225,7 +225,10 @@ Module.register("MMM-LeagueOfLegends", {
 	},
 
 	getQueueFromId: function(id) {
-		const description = this.queues.filter(queue => queue.queueId === id)[0].description;
+		const queue = this.queues.filter(queue => queue.queueId === id)[0];
+		const description = queue.description;
+		if (!description)
+			return queue.map.includes("Custom") ? "Custom" : "Other";
 		const d = description.toLowerCase();
 		return d.includes("flex")
 			? "Flex"
