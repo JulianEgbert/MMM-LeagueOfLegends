@@ -21,6 +21,20 @@ If your App is registered, you can head over to your "Apps" (by clicking on your
 
 You are then ready to use this module.
 
+## Installation
+
+1. Navigate to your modules folder in a terminal:
+
+```bash
+cd ~/MagicMirror/modules
+```
+
+2. Clone this repository:
+
+```bash
+git clone https://github.com/JulianEgbert/MMM-LeagueOfLegends.git
+```
+
 ## Using the module
 
 To use this module, add the following configuration block to the modules array in the `config/config.js` file:
