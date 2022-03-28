@@ -10,8 +10,8 @@ Module.register("MMM-LeagueOfLegends", {
 		updateInterval: 360000,
 		region: "euw1",
 		matchRegion: "europe",
-		imageFolder: "emblems", // emblems, tiers
-		queueType: "RANKED_SOLO_5x5", // RANKED_FLEX_SR, RANKED_SOLO_5x5
+		imageFolder: "emblems",
+		queueType: "RANKED_SOLO_5x5",
 		iconSize: 256,
 		showOtherQueueIfNotFound: true,
 		apiKey: "", // Required
