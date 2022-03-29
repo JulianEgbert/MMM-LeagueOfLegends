@@ -45,50 +45,50 @@ To use this module, add the following configuration block to the modules array i
 
 ```js
 var config = {
-    modules: [
-      { // Display your rank
-        module: 'MMM-LeagueOfLegends',
-        position: "middle_center",
-        config: {
-          summonerName: "YOUR_SUMMONER_NAME",
-          region: "euw1",
-          queueType: "RANKED_SOLO_5x5",
-          apiKey: "YOUR_RIOT_API_KEY",
-          displayElements: [
-            {
-              name: "tier",
-              config: {
-                hideDetailedRankInfo: true
-              }
-            },
-            {
-              name: "stats",
-              config: {
-                showHotStreak: true
-              }
+  modules: [
+    { // Display your rank
+      module: 'MMM-LeagueOfLegends',
+      position: "middle_center",
+      config: {
+        summonerName: "YOUR_SUMMONER_NAME",
+        region: "euw1",
+        queueType: "RANKED_SOLO_5x5",
+        apiKey: "YOUR_RIOT_API_KEY",
+        displayElements: [
+          {
+            name: "tier",
+            config: {
+              hideDetailedRankInfo: true
             }
-          ],
-        }
-      },
-      { // Display your match history
-        module: 'MMM-LeagueOfLegends',
-        position: "middle_center",
-        config: {
-          summonerName: "YOUR_SUMMONER_NAME",
-          apiKey: "YOUR_RIOT_API_KEY",
-          region: "euw1",
-          matchRegion: "europe",
-          displayElements: [
-            {
-              name: "history",
-              config: {
-                count: 10
-              }
-            },
-          ],
-        }
-      },
-    ]
+          },
+          {
+            name: "stats",
+            config: {
+              showHotStreak: true
+            }
+          }
+        ],
+      }
+    },
+    { // Display your match history
+      module: 'MMM-LeagueOfLegends',
+      position: "middle_center",
+      config: {
+        summonerName: "YOUR_SUMMONER_NAME",
+        apiKey: "YOUR_RIOT_API_KEY",
+        region: "euw1",
+        matchRegion: "europe",
+        displayElements: [
+          {
+            name: "history",
+            config: {
+              count: 10
+            }
+          },
+        ],
+      }
+    },
+  ]
 }
 ```
 
@@ -98,7 +98,7 @@ var config = {
 |----------------- |-----------
 | `apiKey`         | *Required* Your own API-Key for the Riot API.
 | `summonerName`   | *Required* Your summoner name.
-| `displayElements`| *Required* The elements that should be displayed in this module. **Type**: Array of objects or strings, see ["Display Elements"](##Display-Elements).
+| `displayElements`| *Required* The elements that should be displayed in this module. **Type**: Array of objects, see ["Display Elements"](##Display-Elements).
 | `region`         | *Required* The region you are playing in (as stated in the riot api description). <br> **Possible values**: `euw1` (default), `br1`, `eun1`, `jp1`, `kr`, `la1`, `la2`, `na1`, `oc1`, `ru`, `tr1`
 | `matchRegion`         | *Required for history* The region you are playing in. It's different because the match API has different regions from the profile API. <br> **Possible values**: `europe` (default), `americas`, `asia`
 | `imageFolder`    | *Optional* The path to the folder with the tier icons. <br> **Possible values**: `"emblems"` (default, new icons), `"tiers"` (old icons), or your custom folder name if you add one.
@@ -109,7 +109,7 @@ var config = {
 
 ## Display Elements
 
-Here is an overview of all the supported display elements. They are either just a name or an object with `name` and `config` for optional configurations. If no config is provided, default values will be used.
+Here is an overview of all the supported display elements. They are an object with `name` and `config` (*optional*) for configurations. If no config is provided, default values will be used.
 
 | Option        | Description
 |---------------|-----------

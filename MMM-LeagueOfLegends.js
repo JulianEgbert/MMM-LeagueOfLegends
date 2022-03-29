@@ -30,7 +30,6 @@ Module.register("MMM-LeagueOfLegends", {
 				}
 			}
 		],
-		showHotStreak: false,
 	},
 
 	requiresVersion: "2.1.0", // Required version of MagicMirror
@@ -307,7 +306,7 @@ Module.register("MMM-LeagueOfLegends", {
 		// If rankData is available
 		if (this.rankData) {
 			this.config.displayElements.forEach(displayElement => {
-				const name = (typeof(displayElement) === "string" ? displayElement.toLowerCase() : displayElement.name);
+				const name = displayElement.name.toLowerCase();
 				switch(name) {
 					case "tier":
 						wrapper.appendChild(this.getTierDiv(displayElement.config));
