@@ -8,6 +8,7 @@
 Module.register("MMM-LeagueOfLegends", {
 	defaults: {
 		updateInterval: 360000,
+		startDelay: 0,
 		region: "euw1",
 		matchRegion: "europe",
 		language: "en-EN",
@@ -48,14 +49,16 @@ Module.register("MMM-LeagueOfLegends", {
 
 		//Flag for check if module is loaded
 		this.loaded = false;
-
-		// Schedule update timer.
-		this.getSummonerData();
-		this.getGameConstants();
-		setInterval(function() {
-			self.getRankData();
-			self.updateDom();
-		}, this.config.updateInterval);
+		// Allow module to load delayed, necessary for multiple modules and requests
+		setTimeout(() => {
+			this.getSummonerData();
+			this.getGameConstants();
+			// Schedule update timer.
+			setInterval(function() {
+				self.getRankData();
+				self.updateDom();
+			}, this.config.updateInterval);
+		}, this.config.startDelay);
 	},
 
 	getSummonerData: function() {
