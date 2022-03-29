@@ -102,7 +102,8 @@ var config = {
 | `region`         | *Required* The region you are playing in (as stated in the riot api description). <br> **Possible values**: `euw1` (default), `br1`, `eun1`, `jp1`, `kr`, `la1`, `la2`, `na1`, `oc1`, `ru`, `tr1`
 | `matchRegion`         | *Required for history* The region you are playing in. It's different because the match API has different regions from the profile API. <br> **Possible values**: `europe` (default), `americas`, `asia`
 | `imageFolder`    | *Optional* The path to the folder with the tier icons. <br> **Possible values**: `"emblems"` (default, new icons), `"tiers"` (old icons), or your custom folder name if you add one.
-| `iconSize`       | *Optional* Size of the tier icon. <br> **Default:** 256
+| `iconSize`       | *Optional* Size of the tier icon. <br> **Default:** `256`
+| `language`       | *Optional* Language used for the *time* display (everything else is currently english only!). <br> **Default:** `en-EN`
 | `queueType`      | *Optional* The queue you want to display your Elo from. <br> **Possible values**: `"RANKED_SOLO_5x5"` (default, Solo-Queue), `"RANKED_FLEX_SR"` (Flex-Queue)
 | `showOtherQueueIfNotFound` | *Optional* Whether the module should display another queue elo if specified queue is not found. <br>**Type:** Boolean, default: `true`
 
@@ -116,5 +117,6 @@ Here is an overview of all the supported display elements. They are an object wi
 | `tier`        | Displays the icon of your rank. <br> **Config**: `hideDetailedRankInfo`: *boolean* (**default** `false`), wether or not to display the tier name, division and LP.
 | `stats`       | Displays the stats for this queue (Wins, Losses, Winrate). <br> **Config**: `showHotStreak`: **Type** Boolean (**default** `false`), wether or not to display a flame icon, when the summoner has a hotstreak (provided by the riot API).
 | `summoner`    | Displays the summoner name. <br> **Config**: `showLevel`: *boolean* (**default** `false`), wether or not to display the level of the user.
+| `clash`       | Displays the schedule of the next clash tournaments. <br> **Config**: `count`: *number* (**default** `5`), number of upcoming tournaments to display.
 | `history`     | Displays the latest games with brief information. <br> **Config**: `count` (default `5`): number of matches to display. <br> `showTime` (default `true`): display date of game and game duration. <br> `showStats` (default `true`): display stats of the game (kda and cs). <br> `showQueue` (default `true`): display queue and win or loss. <br> `showChampion` (default `true`): display the champion splashart. <br> `iconSize` (default `64`): size of the champion icon in the history <br> `csPerMinute` (default `true`): display cs per minute after cs score.
 

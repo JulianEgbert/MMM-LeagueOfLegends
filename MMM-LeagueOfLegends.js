@@ -10,6 +10,7 @@ Module.register("MMM-LeagueOfLegends", {
 		updateInterval: 360000,
 		region: "euw1",
 		matchRegion: "europe",
+		language: "en-EN",
 		imageFolder: "emblems",
 		queueType: "RANKED_SOLO_5x5",
 		iconSize: 256,
@@ -43,6 +44,7 @@ Module.register("MMM-LeagueOfLegends", {
 		var matchIds = null;
 		var version = null;
 		var queues = null;
+		var clashData = null;
 
 		//Flag for check if module is loaded
 		this.loaded = false;
@@ -141,6 +143,7 @@ Module.register("MMM-LeagueOfLegends", {
 
 	getSummonerDiv: function(config) {
 		const wrapper = document.createElement("div");
+		wrapper.setAttribute("class", "LoL-Summoner");
 		var summonerNameLabel = document.createElement("label");
 		summonerNameLabel.innerHTML = this.summonerData.name;
 		if (config && config.showLevel) {
@@ -153,6 +156,7 @@ Module.register("MMM-LeagueOfLegends", {
 
 	getTierDiv: function(config) {
 		const wrapper = document.createElement("div");
+		wrapper.setAttribute("class", "LoL-Tier");
 		// create the icon:
 		let tierIcon = document.createElement("img");
 		const rankTier = this.getRankTier();
@@ -181,6 +185,7 @@ Module.register("MMM-LeagueOfLegends", {
 
 	getStatsDiv: function(config) {
 		const wrapper = document.createElement("div");
+		wrapper.setAttribute("class", "LoL-Stats");
 		// create the icon:
 		var statsLabel = document.createElement("label");
 		const q = this.queueData;
@@ -218,7 +223,7 @@ Module.register("MMM-LeagueOfLegends", {
 			const match = this.historyData[matchId];
 			if (!match)
 				return;
-			wrapper.appendChild(this.getMatchDiv(matchId, config));
+			wrapper.appendChild(this.getMatchRow(matchId, config));
 		});
 		return wrapper;
 	},
@@ -238,7 +243,7 @@ Module.register("MMM-LeagueOfLegends", {
 					: description));
 	},
 
-	getMatchDiv: function(matchId, config) {
+	getMatchRow: function(matchId, config) {
 		const match = this.historyData[matchId];
 		const matchRow = document.createElement("tr");
 		const summoner = this.getSummonerFromMatch(matchId);
@@ -271,7 +276,7 @@ Module.register("MMM-LeagueOfLegends", {
 			matchRow.appendChild(timeColumn);
 			const timeLabel = document.createElement("div");
 			const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-			const s = new Date(match.info.gameCreation).toLocaleDateString("de-DE", options);
+			const s = new Date(match.info.gameCreation).toLocaleDateString(this.config.language, options);
 			timeLabel.innerHTML = s;
 			timeColumn.appendChild(timeLabel);
 			const durationLabel = document.createElement("div");
@@ -300,6 +305,42 @@ Module.register("MMM-LeagueOfLegends", {
 		return participants.filter(p => p.puuid === this.summonerData.puuid)[0];
 	},
 
+	getClashDiv: function(customConfig) {
+		const wrapper = document.createElement("table");
+		wrapper.setAttribute("class", "LoL-Clash small");
+		if (!this.clashData)
+			return wrapper;
+		var config = {
+			count: 5,
+		};
+		Object.assign(config, customConfig);
+		const events = this.clashData.slice(0, config.count);
+		// wrapper.innerHTML = JSON.stringify(events);
+		events.forEach(event => {
+			wrapper.appendChild(this.getClashEventRow(event));
+		});
+		return wrapper;
+	},
+
+	getClashEventRow: function(event) {
+		const eventRow = document.createElement("tr");
+		const iconColumn = document.createElement("td");
+		eventRow.appendChild(iconColumn);
+		iconColumn.setAttribute("class", "fas fa-trophy");
+		const nameColumn = document.createElement("td");
+		eventRow.appendChild(nameColumn);
+		const name = event.nameKey[0].toUpperCase() + event.nameKey.substring(1) + " Clash";
+		const day = event.nameKeySecondary.match(/\d/)[0];
+		nameColumn.innerHTML = `${name} (Day ${day})`;
+		const dateColumn = document.createElement("td");
+		eventRow.appendChild(dateColumn);
+		const date = new Date(0);
+		date.setUTCSeconds(event.schedule[0].startTime / 1000);
+		const options = { year: 'numeric', month: 'long', day: 'numeric' };
+		dateColumn.innerHTML = date.toLocaleDateString(this.config.language, options);
+		return eventRow;
+	},
+
 	getDom: function() {
 		// create element wrapper for show into the module
 		var wrapper = document.createElement("div");
@@ -319,6 +360,9 @@ Module.register("MMM-LeagueOfLegends", {
 						break;
 					case "history":
 						wrapper.appendChild(this.getHistoryDiv(displayElement.config));
+						break;
+					case "clash":
+						wrapper.appendChild(this.getClashDiv(displayElement.config));
 						break;
 					default:
 						break;
@@ -353,6 +397,7 @@ Module.register("MMM-LeagueOfLegends", {
 
 	processSummonerData: function(self, data) {
 		self.summonerData = data;
+		self.getClashData();
 		self.getRankData();
 	},
 
@@ -379,6 +424,11 @@ Module.register("MMM-LeagueOfLegends", {
 	getMatchData: function(matchId) {
 		var urlApi = `https://${this.config.matchRegion}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${this.config.apiKey}`;
 		this.sendRequest(urlApi, this.processMatchData);
+	},
+
+	getClashData: function() {
+		const urlApi = `https://euw1.api.riotgames.com/lol/clash/v1/tournaments?api_key=${this.config.apiKey}`;
+		this.sendRequest(urlApi, (self, data) => {self.clashData = data.sort((a,b) => { return a.schedule[0].startTime > b.schedule[0].startTime ? 1 : -1}); self.updateDom();});
 	},
 
 	processMatchData: function(self, data) {
