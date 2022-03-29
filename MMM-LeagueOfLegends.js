@@ -325,14 +325,17 @@ Module.register("MMM-LeagueOfLegends", {
 	getClashEventRow: function(event) {
 		const eventRow = document.createElement("tr");
 		const iconColumn = document.createElement("td");
+		iconColumn.setAttribute("class", "symbol align-right")
 		eventRow.appendChild(iconColumn);
 		iconColumn.setAttribute("class", "fas fa-trophy");
 		const nameColumn = document.createElement("td");
 		eventRow.appendChild(nameColumn);
+		nameColumn.setAttribute("class", "title bright");
 		const name = event.nameKey[0].toUpperCase() + event.nameKey.substring(1) + " Clash";
 		const day = event.nameKeySecondary.match(/\d/)[0];
 		nameColumn.innerHTML = `${name} (Day ${day})`;
 		const dateColumn = document.createElement("td");
+		dateColumn.setAttribute("class", "time light")
 		eventRow.appendChild(dateColumn);
 		const date = new Date(0);
 		date.setUTCSeconds(event.schedule[0].startTime / 1000);
