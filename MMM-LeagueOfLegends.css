@@ -33,10 +33,10 @@
   padding-left: 10px;
 }
 
-.MMM-LeagueOfLegends tr:nth-last-child(2) {
+.fadeout tr:nth-last-child(2) {
   opacity: 0.6;
 }
 
-.MMM-LeagueOfLegends tr:nth-last-child(1) {
+.fadeout tr:nth-last-child(1) {
   opacity: 0.3;
 }

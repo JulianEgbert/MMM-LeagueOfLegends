@@ -215,12 +215,15 @@ Module.register("MMM-LeagueOfLegends", {
 			showStats: true,
 			showQueue: true,
 			showChampion: true,
+			fadeOut: true,
 			iconSize: 64,
 			csPerMinute: true,
 		};
 		Object.assign(config, customConfig);
 		const wrapper = document.createElement("table");
-		wrapper.setAttribute("class", "LoL-Matchhistory small")
+		wrapper.setAttribute("class", "LoL-Matchhistory small");
+		if (config.fadeOut)
+			wrapper.classList.add("fadeout");
 		if (!this.historyData) {
 			return wrapper;
 		}
@@ -317,8 +320,11 @@ Module.register("MMM-LeagueOfLegends", {
 			return wrapper;
 		var config = {
 			count: 5,
+			fadeOut: true,
 		};
 		Object.assign(config, customConfig);
+		if (config.fadeOut)
+			wrapper.classList.add("fadeout");
 		const events = this.clashData.slice(0, config.count);
 		// wrapper.innerHTML = JSON.stringify(events);
 		events.forEach(event => {
