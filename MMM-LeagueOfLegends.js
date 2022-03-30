@@ -272,6 +272,7 @@ Module.register("MMM-LeagueOfLegends", {
 			matchRow.appendChild(infoColumn);
 			const victoryLabel = document.createElement("div");
 			victoryLabel.innerHTML = summoner.win ? "Victory" : "Defeat";
+			victoryLabel.classList.add(summoner.win ? "victory" : "defeat");
 			infoColumn.appendChild(victoryLabel);
 			const gameLabel = document.createElement("div");
 			gameLabel.innerHTML = this.getQueueFromId(match.info.queueId);
@@ -297,7 +298,10 @@ Module.register("MMM-LeagueOfLegends", {
 			const statColumn = document.createElement("td");
 			matchRow.appendChild(statColumn);
 			const kdaLabel = document.createElement("div");
-			kdaLabel.innerHTML = `${summoner.kills}/${summoner.deaths}/${summoner.assists}`;
+			kdaLabel.innerHTML = `
+				<span class="kills"> ${summoner.kills} </span>/
+				<span class="deaths"> ${summoner.deaths} </span>/
+				<span class="assists"> ${summoner.assists} </span>`;
 			statColumn.appendChild(kdaLabel);
 			const csLabel = document.createElement("div");
 			csLabel.innerHTML = `${summoner.totalMinionsKilled} cs`;

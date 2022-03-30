@@ -40,3 +40,23 @@
 .fadeout tr:nth-last-child(1) {
   opacity: 0.3;
 }
+
+.victory {
+  color: #3CBC8D;
+}
+
+.defeat {
+  color: #E9422E;
+}
+
+.kills {
+  color: #3CBC8D;
+}
+
+.deaths {
+  color: #E9422E;
+}
+
+.assists {
+  color: #FAC552;
+}
