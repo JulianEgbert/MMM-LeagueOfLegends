@@ -36,44 +36,78 @@ Module.register("MMM-LeagueOfLegends", {
 
 	requiresVersion: "2.1.0", // Required version of MagicMirror
 
-	start: function() {
+	start: async function() {
 		var self = this;
-		var summonerData = null;
-		var rankData = null;
-		var queueData = null;
-		var historyData = null;
-		var matchIds = null;
-		var version = null;
-		var queues = null;
-		var clashData = null;
+		this.loading = {done: 0, total: 0};
+		this.summonerData = null;
+		this.rankData = null;
+		this.queueData = null;
+		this.historyData = {};
+		this.matchIds = null;
+		this.version = null;
+		this.queues = null;
+		this.clashData = null;
 
 		//Flag for check if module is loaded
 		this.loaded = false;
 		// Allow module to load delayed, necessary for multiple modules and requests
 		setTimeout(() => {
-			this.getSummonerData();
-			this.getGameConstants();
+			this.initData();
 			// Schedule update timer.
 			if (this.config.updateInterval > 0) {
-				setInterval(function() {
-					self.getRankData();
+				setInterval(async function() {
+					self.updateData();
 					self.updateDom();
 				}, this.config.updateInterval);
 			}
 		}, this.config.startDelay);
 	},
 
-	getSummonerData: function() {
-		var urlApi = `https://${this.config.region}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${this.config.summonerName}?api_key=${this.config.apiKey}`;
-
-		this.sendRequest(urlApi, this.processSummonerData);
+	initData: async function() {
+		await this.getSummonerData();
+		await this.getGameConstants();
+		this.updateData();
 	},
 
-	getGameConstants: function() {
+	updateData: function() {
+		this.loading = {done: 0, total: 0};
+		const displayElements = this.config.displayElements.map((element) => element.name);
+		if (displayElements.includes("tier") || displayElements.includes("stats")) {
+			this.loading.total += 1;
+			this.getRankData();
+		}
+		if (displayElements.includes("history")) {
+			this.loading.total += 1;
+			this.getHistoryData();
+		}
+		if (displayElements.includes("clash")) {
+			this.getClashData();
+		}
+		if (this.loading.total === 0) {
+			this.moduleLoaded();
+		}
+	},
+
+	getSummonerData: async function() {
+		var urlApi = `https://${this.config.region}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${this.config.summonerName}?api_key=${this.config.apiKey}`;
+
+		const response = await fetch(urlApi);
+		const json = await response.json();
+		this.summonerData = json;
+	},
+
+	getGameConstants: async function() {
 		const versionUrl = "https://ddragon.leagueoflegends.com/api/versions.json";
-		const queueUrl = "https://static.developer.riotgames.com/docs/lol/queues.json"
-		this.sendRequest(versionUrl, (self, data) => {self.version = data[0]});
-		this.sendRequest(queueUrl, (self, data) => {self.queues = data});
+		const queueUrl = "https://static.developer.riotgames.com/docs/lol/queues.json";
+
+		const versionResponse = fetch(versionUrl);
+		const queueResponse = fetch(queueUrl);
+
+		await Promise.all([versionResponse, queueResponse]).then(async (results) => {
+			const versions = await results[0].json()
+			this.version = versions[0];
+			this.queues = await results[1].json()
+		});
 	},
 
 	getRankData: function() {
@@ -161,22 +195,22 @@ Module.register("MMM-LeagueOfLegends", {
 		];
 	},
 
-	processSummonerData: function(self, data) {
-		self.summonerData = data;
-		self.getClashData();
-		self.getRankData();
-	},
-
 	moduleLoaded() {
-		if (this.loaded === false) { this.updateDom(this.config.animationSpeed) ; }
 		this.loaded = true;
+		this.updateDom(this.config.animationSpeed);
 	},
 
 	processRankData: function(self, data) {
 		self.rankData = data;
 		self.prepareQueueData();
-		self.getHistoryData();
-		// self.moduleLoaded(self);
+		self.dataProcessed();
+	},
+
+	dataProcessed: function() {
+		this.loading.done += 1;
+		if (this.loading.total <= this.loading.done) {
+			this.moduleLoaded();
+		}
 	},
 
 	processHistoryData: function(self, data) {
@@ -184,17 +218,22 @@ Module.register("MMM-LeagueOfLegends", {
 		data.forEach(matchId => {
 			self.getMatchData(matchId);
 		});
-		self.moduleLoaded();
+		self.dataProcessed();
 	},
 
 	getMatchData: function(matchId) {
+		if (this.historyData && this.historyData[matchId])
+			return;
 		var urlApi = `https://${this.config.matchRegion}.api.riotgames.com/lol/match/v5/matches/${matchId}?api_key=${this.config.apiKey}`;
 		this.sendRequest(urlApi, this.processMatchData);
 	},
 
 	getClashData: function() {
 		const urlApi = `https://euw1.api.riotgames.com/lol/clash/v1/tournaments?api_key=${this.config.apiKey}`;
-		this.sendRequest(urlApi, (self, data) => {self.clashData = data.sort((a,b) => { return a.schedule[0].startTime > b.schedule[0].startTime ? 1 : -1}); self.updateDom();});
+		this.sendRequest(urlApi, (self, data) => {
+			self.clashData = data.sort((a,b) => { return a.schedule[0].startTime > b.schedule[0].startTime ? 1 : -1});
+			self.updateDom();
+		});
 	},
 
 	processMatchData: function(self, data) {

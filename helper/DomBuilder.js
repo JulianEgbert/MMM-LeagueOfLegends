@@ -12,31 +12,33 @@ class DomBuilder {
   	getDom(){
 		var wrapper = document.createElement("div");
 		// If rankData is available
-		if (this.rankData) {
-			this.config.displayElements.forEach(displayElement => {
-				const name = displayElement.name.toLowerCase();
-				switch(name) {
-					case "tier":
-						wrapper.appendChild(this.getTierDiv(displayElement.config));
-						break;
-					case "stats":
-						wrapper.appendChild(this.getStatsDiv(displayElement.config));
-						break;
-					case "summoner":
-						wrapper.appendChild(this.getSummonerDiv(displayElement.config));
-						break;
-					case "history":
-						wrapper.appendChild(this.getHistoryDiv(displayElement.config));
-						break;
-					case "clash":
-						wrapper.appendChild(this.getClashDiv(displayElement.config));
-						break;
-					default:
-						break;
-				}
-			});
-
-		} else { // No data available, display information
+		if (!this.loaded) {
+			wrapper.innerHTML = "LOADING";
+			return wrapper;
+		}
+		this.config.displayElements.forEach(displayElement => {
+			const name = displayElement.name.toLowerCase();
+			switch(name) {
+				case "tier":
+					wrapper.appendChild(this.getTierDiv(displayElement.config));
+					break;
+				case "stats":
+					wrapper.appendChild(this.getStatsDiv(displayElement.config));
+					break;
+				case "summoner":
+					wrapper.appendChild(this.getSummonerDiv(displayElement.config));
+					break;
+				case "history":
+					wrapper.appendChild(this.getHistoryDiv(displayElement.config));
+					break;
+				case "clash":
+					wrapper.appendChild(this.getClashDiv(displayElement.config));
+					break;
+				default:
+					break;
+			}
+		});
+		if (wrapper.childNodes.length === 0) { // No data available, display information
 			const errorWrapper = document.createElement("div");
 			errorWrapper.innerHTML = `${this.name}: An error occured: There is not data to display.`;
 			wrapper.appendChild(errorWrapper);
