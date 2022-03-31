@@ -30,13 +30,21 @@ You are then ready to use this module.
 1. Navigate to your modules folder in a terminal:
 
 ```bash
-cd ~/MagicMirror/modules
+cd modules
 ```
 
 2. Clone this repository:
 
 ```bash
 git clone https://github.com/JulianEgbert/MMM-LeagueOfLegends.git
+```
+
+### Updating
+
+To update this module, navigate to the module folder (`cd modules/MMM-LeagueOfLegends`) and pull from the repository using:
+
+```bash
+git pull
 ```
 
 ## Using the module
