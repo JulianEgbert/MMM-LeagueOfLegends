@@ -40,6 +40,9 @@ class DomBuilder {
 				case "html":
 					wrapper.innerHTML += displayElement.config.html;
 					break;
+				case "friends":
+					wrapper.appendChild(this.getFriendsDiv(displayElement.config));
+					break;
 				default:
 					wrapper.innerHTML += `<p> Can't find display element "${name}". <br> Please check your config for MMM-LeagueOfLegends </p>`
 					break;
@@ -331,5 +334,35 @@ class DomBuilder {
 		championIcon.src = `http://ddragon.leagueoflegends.com/cdn/${this.version}/img/champion/${championName}.png`;
 		championIcon.width = championIcon.height = size;
 		return championIcon;
+	}
+
+	getFriendsDiv(customConfig) {
+		const table = document.createElement("table");
+		Object.keys(this.friendsData).forEach((name) => {
+			if (!this.friendsData[name])
+				return
+			table.appendChild(this.getFriendRow((name)));
+		});
+		if (table.childNodes.length === 0) {
+			table.innerHTML = "<tr> No friends are ingame</tr>";
+		}
+		return table;
+	}
+
+	getFriendRow(name) {
+		const matchInfo = this.friendsData[name];
+		const player = matchInfo.participants.filter((p) => p.name === name)[0];
+		const queue = this.getQueueFromId(matchInfo.gameQueueConfigId);
+		const duration = (Date.now() - matchInfo.gameStartTime) / 1000;
+		const row = document.createElement("tr");
+		const iconCol = document.createElement("td");
+		iconCol.appendChild(this.getChampionIcon(this.getChampionById(92), 32));
+		row.appendChild(iconCol);
+		row.innerHTML += `
+		<td> ${name} </td>
+		<td> ${queue} </td>
+		<td> ${this.getGameDurationString(duration)} </td>
+		`;
+		return row
 	}
 }

@@ -48,13 +48,17 @@ Module.register("MMM-LeagueOfLegends", {
 		this.version = null;
 		this.championData = null;
 		this.queues = null;
+		this.friends = {};
+		this.friendsData = {};
 		this.clashData = null;
 
 		//Flag for check if module is loaded
 		this.loaded = false;
+
+		await this.initData();
 		// Allow module to load delayed, necessary for multiple modules and requests
 		setTimeout(() => {
-			this.initData();
+			this.updateData();
 			// Schedule update timer.
 			if (this.config.updateInterval > 0) {
 				setInterval(async function() {
@@ -68,7 +72,8 @@ Module.register("MMM-LeagueOfLegends", {
 	initData: async function() {
 		await this.getSummonerData();
 		await this.getGameConstants();
-		this.updateData();
+		this.getInitialFriendsData();
+		// this.updateData();
 	},
 
 	updateData: function() {
@@ -87,6 +92,9 @@ Module.register("MMM-LeagueOfLegends", {
 		}
 		if (displayElements.includes("live")) {
 			this.getLiveData();
+		}
+		if (displayElements.includes("friends")) {
+			this.getFriendsData();
 		}
 		if (this.loading.total === 0) {
 			this.moduleLoaded();
@@ -113,8 +121,9 @@ Module.register("MMM-LeagueOfLegends", {
 			this.version = versions[0];
 			this.queues = await results[1].json()
 		});
-		const championUrl = `https://ddragon.leagueoflegends.com/cdn/${this.version}/data/en_US/champion.json`;
-		this.sendRequest(championUrl, (self, data) => self.championData = data.data);
+		const championResponse = await fetch(`https://ddragon.leagueoflegends.com/cdn/${this.version}/data/en_US/champion.json`);
+		this.championData = await championResponse.json();
+		this.championData = this.championData.data; // the real data is stored in data.
 	},
 
 	getRankData: function() {
@@ -267,6 +276,63 @@ Module.register("MMM-LeagueOfLegends", {
 			self.clashData = data.sort((a,b) => { return a.schedule[0].startTime > b.schedule[0].startTime ? 1 : -1});
 			self.updateDom();
 		});
+	},
+
+	getInitialFriendsData: function() {
+		const friendsModule = this.config.displayElements.filter((el) => el.name === "friends");
+		if (friendsModule.length === 0)
+			return;
+		const friends = friendsModule[0].config.friends;
+		friends.forEach((friend) => {
+			var urlApi = `https://${this.config.region}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${friend}?api_key=${this.config.apiKey}`;
+			this.sendRequest(urlApi, (self, data) => {
+				const name = data.name;
+				self.friends[name] = data;
+			});
+		});
+	},
+
+	getFriendsData: function() {
+		const friends = Object.keys(this.friends);
+		friends.forEach((friend) => {
+			this.getFriendData(this.friends[friend]);
+		});
+	},
+
+	getFriendData: function(friend) {
+		const url = `https://${this.config.region}.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${friend.id}?api_key=${this.config.apiKey}`;
+		const name = friend.name;
+		var self = this;
+		var request = new XMLHttpRequest();
+		request.open("GET", url, true);
+		request.onreadystatechange = function() {
+			if (this.readyState === 4) {
+				if (this.status === 200) {
+					self.updateFriendData(name, JSON.parse(this.response));
+					// self.friendsData[name] = JSON.parse(this.response);
+					// self.updateDom();
+				} else if (this.status === 401) {
+					self.updateDom(self.config.animationSpeed);
+					Log.error(self.name, this.status);
+				} else {
+					self.updateFriendData(name, null);
+					// self.friendsData[name] = null;
+					// self.updateDom();
+				}
+			}
+		};
+		request.send();
+	},
+
+	updateFriendData: function(name, data) {
+		this.friendsData[name] = data;
+		const ingameFriends = Object.keys(this.friendsData).filter((f) => this.friendsData[f] !== null);
+		if (ingameFriends.length > 0) {
+			this.friendInterval = setInterval(() => this.updateDom(), 1000);
+		} else {
+			clearInterval(this.friendInterval);
+			this.updateDom();
+		}
 	},
 
 	processMatchData: function(self, data) {
