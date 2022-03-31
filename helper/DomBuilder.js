@@ -203,6 +203,9 @@ class DomBuilder {
 				return;
 			wrapper.appendChild(this.getMatchRow(matchId, config));
 		});
+		if(wrapper.childNodes.length === 0) {
+			wrapper.innerHTML = "There are no matches to display.";
+		}
 		return wrapper;
 	}
 
