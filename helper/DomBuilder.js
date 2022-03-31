@@ -41,6 +41,7 @@ class DomBuilder {
 					wrapper.innerHTML += displayElement.config.html;
 					break;
 				default:
+					wrapper.innerHTML += `<p> Can't find display element "${name}". <br> Please check your config for MMM-LeagueOfLegends </p>`
 					break;
 			}
 		});
@@ -300,6 +301,10 @@ class DomBuilder {
 	}
 
 	getLiveDiv(customConfig) {
+		const config = {
+			notIngameText: "Currently not in a game",
+		};
+		Object.assign(config, customConfig);
 		const wrapper = document.createElement("table");
 		wrapper.setAttribute("class", "small LoL-Livegame")
 		const row = document.createElement("tr");
@@ -316,7 +321,7 @@ class DomBuilder {
 			const duration = (Date.now() - this.liveData.gameStartTime) / 1000;
 			gameDetails.innerHTML = `<div> ${queue} </div> <div> ${this.getGameDurationString(duration)} </div>`;
 		} else {
-			wrapper.innerHTML = "Currently not in a game";
+			wrapper.innerHTML = config.notIngameText;
 		}
 		return wrapper;
 	}
