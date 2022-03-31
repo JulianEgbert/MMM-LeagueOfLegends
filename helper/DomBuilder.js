@@ -37,6 +37,9 @@ class DomBuilder {
 				case "live":
 					wrapper.appendChild(this.getLiveDiv(displayElement.config));
 					break;
+				case "html":
+					wrapper.innerHTML += displayElement.config.html;
+					break;
 				default:
 					break;
 			}
@@ -275,7 +278,7 @@ class DomBuilder {
 	}
 
 	getGameDurationString(timeInSeconds) {
-		if (timeInSeconds <= 0)
+		if (timeInSeconds <= 0 || timeInSeconds > 36000) // A large time also means that the game is still loading
 			return "Loading...";
 		const minutes = Math.floor(timeInSeconds / 60);
 		const seconds = Math.floor(timeInSeconds % 60);
