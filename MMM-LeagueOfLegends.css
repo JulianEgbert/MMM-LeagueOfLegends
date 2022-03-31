@@ -11,6 +11,13 @@
   text-align: center;
 }
 
+.LoL-Livegame {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 40vw;
+  text-align: center;
+}
+
 .LoL-Matchhistory {
   text-align: center;
   margin-left: auto;

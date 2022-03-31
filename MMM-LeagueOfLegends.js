@@ -41,10 +41,12 @@ Module.register("MMM-LeagueOfLegends", {
 		this.loading = {done: 0, total: 0};
 		this.summonerData = null;
 		this.rankData = null;
+		this.liveData = null;
 		this.queueData = null;
 		this.historyData = {};
 		this.matchIds = null;
 		this.version = null;
+		this.championData = null;
 		this.queues = null;
 		this.clashData = null;
 
@@ -83,6 +85,9 @@ Module.register("MMM-LeagueOfLegends", {
 		if (displayElements.includes("clash")) {
 			this.getClashData();
 		}
+		if (displayElements.includes("live")) {
+			this.getLiveData();
+		}
 		if (this.loading.total === 0) {
 			this.moduleLoaded();
 		}
@@ -108,6 +113,8 @@ Module.register("MMM-LeagueOfLegends", {
 			this.version = versions[0];
 			this.queues = await results[1].json()
 		});
+		const championUrl = `https://ddragon.leagueoflegends.com/cdn/${this.version}/data/en_US/champion.json`;
+		this.sendRequest(championUrl, (self, data) => self.championData = data.data);
 	},
 
 	getRankData: function() {
@@ -117,6 +124,23 @@ Module.register("MMM-LeagueOfLegends", {
 		var urlApi = `https://${this.config.region}.api.riotgames.com/lol/league/v4/entries/by-summoner/${this.summonerData.id}?api_key=${this.config.apiKey}`;
 
 		this.sendRequest(urlApi, this.processRankData);
+	},
+
+	getLiveData: function() {
+		if (!this.summonerData) {
+			console.error(self.name, "No data for the summoner found");
+		}
+		var urlApi = `https://${this.config.region}.api.riotgames.com/lol/spectator/v4/active-games/by-summoner/${this.summonerData.id}?api_key=${this.config.apiKey}`;
+
+		this.sendRequest(urlApi, (self, data) => {
+			self.liveData = data;
+			self.updateDom();
+			self.ingameInterval = setInterval(() => self.updateDom(), 1000);
+		}, (self, error) => {
+			self.liveData = null;
+			clearInterval(self.ingameInterval);
+			self.updateDom();
+		});
 	},
 
 	matchHistoryRequired: function() {
@@ -145,7 +169,7 @@ Module.register("MMM-LeagueOfLegends", {
 		this.sendRequest(urlApi, this.processHistoryData);
 	},
 
-	sendRequest: function(url, onSuccess) {
+	sendRequest: function(url, onSuccess, onError = null) {
 		var self = this;
 		var request = new XMLHttpRequest();
 		request.open("GET", url, true);
@@ -157,11 +181,20 @@ Module.register("MMM-LeagueOfLegends", {
 					self.updateDom(self.config.animationSpeed);
 					Log.error(self.name, this.status);
 				} else {
-					Log.error(self.name, `Could not load data from "${url}".`);
+					if (onError) {
+						onError(self, this)
+					} else {
+						Log.error(self.name, `Could not load data from "${url}".`);
+					}
 				}
 			}
 		};
-		request.send();
+		try {
+			request.send();
+		}
+		catch (e) {
+			console.error(self.name, `Error loading data from "${url}"`);
+		}
 	},
 
 	prepareQueueData: function() {

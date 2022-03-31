@@ -34,21 +34,17 @@ class DomBuilder {
 				case "clash":
 					wrapper.appendChild(this.getClashDiv(displayElement.config));
 					break;
+				case "live":
+					wrapper.appendChild(this.getLiveDiv(displayElement.config));
+					break;
 				default:
 					break;
 			}
 		});
 		if (wrapper.childNodes.length === 0) { // No data available, display information
 			const errorWrapper = document.createElement("div");
-			errorWrapper.innerHTML = `${this.name}: An error occured: There is not data to display.`;
+			errorWrapper.innerHTML = `${this.name}: There is not data to display.`;
 			wrapper.appendChild(errorWrapper);
-			const description = document.createElement("paragraph");
-			wrapper.appendChild(description);
-			if (!this.summonerData) {
-				description.innerHTML = "No summoner Data present. Please check your API-Key, Region and Summoner Name.";
-			} else {
-				description.innerHTML = `This is your summoner Data: ${JSON.stringify(this.summonerData)}. Something else went wrong. Maybe you are unranked?`;
-			}
 		}
 		return wrapper;
 	}
@@ -62,9 +58,7 @@ class DomBuilder {
 		if (config.showChampion) {
 			const iconColumn = document.createElement("td");
 			matchRow.appendChild(iconColumn);
-			const championIcon = document.createElement("img");
-			championIcon.src = `http://ddragon.leagueoflegends.com/cdn/${this.version}/img/champion/${summoner.championName}.png`;
-			championIcon.width = championIcon.height = config.iconSize;
+			const championIcon = this.getChampionIcon(summoner.championName, config.iconSize);
 			iconColumn.appendChild(championIcon);
 		}
 
@@ -91,7 +85,7 @@ class DomBuilder {
 			timeLabel.innerHTML = s;
 			timeColumn.appendChild(timeLabel);
 			const durationLabel = document.createElement("div");
-			durationLabel.innerHTML = `${Math.floor(match.info.gameDuration / 60)}:${match.info.gameDuration % 60}`;
+			durationLabel.innerHTML = this.getGameDurationString(match.info.gameDuration);
 			timeColumn.appendChild(durationLabel);
 		}
 
@@ -280,8 +274,54 @@ class DomBuilder {
 		return description
 	}
 
+	getGameDurationString(timeInSeconds) {
+		if (timeInSeconds <= 0)
+			return "Loading...";
+		const minutes = Math.floor(timeInSeconds / 60);
+		const seconds = Math.floor(timeInSeconds % 60);
+		return `${minutes < 10 ? "0"+minutes : minutes}:${seconds < 10 ? "0"+seconds : seconds}`;
+	}
+
 	getSummonerFromMatch(matchId) {
 		const participants = this.historyData[matchId].info.participants;
 		return participants.filter(p => p.puuid === this.summonerData.puuid)[0];
+	}
+
+	getChampionById(championId) {
+		if (!this.championData) {
+			return
+		}
+		const champions = Object.values(this.championData);
+		const champion = champions.filter(champion => {return parseInt(champion.key) === championId})[0];
+		return champion.id;
+	}
+
+	getLiveDiv(customConfig) {
+		const wrapper = document.createElement("table");
+		wrapper.setAttribute("class", "small LoL-Livegame")
+		const row = document.createElement("tr");
+		wrapper.appendChild(row);
+		if (this.liveData) {
+			const iconCol = document.createElement("td");
+			row.appendChild(iconCol);
+			const player = this.liveData.participants.filter(player => player.summonerId === this.summonerData.id)[0];
+			const queue = this.getQueueFromId(this.liveData.gameQueueConfigId);
+			const champImage = this.getChampionIcon(this.getChampionById(player.championId), 64);
+			iconCol.appendChild(champImage);
+			const gameDetails = document.createElement("td");
+			row.appendChild(gameDetails);
+			const duration = (Date.now() - this.liveData.gameStartTime) / 1000;
+			gameDetails.innerHTML = `<div> ${queue} </div> <div> ${this.getGameDurationString(duration)} </div>`;
+		} else {
+			wrapper.innerHTML = "Currently not in a game";
+		}
+		return wrapper;
+	}
+
+	getChampionIcon(championName, size =64) {
+		const championIcon = document.createElement("img");
+		championIcon.src = `http://ddragon.leagueoflegends.com/cdn/${this.version}/img/champion/${championName}.png`;
+		championIcon.width = championIcon.height = size;
+		return championIcon;
 	}
 }
