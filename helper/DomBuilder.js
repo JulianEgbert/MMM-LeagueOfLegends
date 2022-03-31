@@ -227,6 +227,10 @@ class DomBuilder {
 	getTierDiv(config) {
 		const wrapper = document.createElement("div");
 		wrapper.setAttribute("class", "LoL-Tier");
+		if (!this.queueData) {
+			wrapper.innerHTML = "No data to display";
+			return wrapper;
+		}
 		// create the icon:
 		let tierIcon = document.createElement("img");
 		const rankTier = this.getRankTier();
@@ -242,7 +246,7 @@ class DomBuilder {
 		const informationDiv = document.createElement("div");
 		var tierLabel = document.createElement("label");
 		const q = this.queueData;
-		if (q) {
+		if (q && q.tier) {
 			tierLabel.innerHTML = `${q.tier} ${q.rank} - ${q.leaguePoints} LP`;
 		} else {
 			tierLabel.innerHTML = "Unranked";
@@ -254,7 +258,7 @@ class DomBuilder {
 	}
 
 	getRankTier() {
-		return this.queueData ? this.queueData.tier.toLowerCase() : "unranked";
+		return this.queueData ?(this.queueData.tier ? this.queueData.tier.toLowerCase() : "unranked") : "unranked";
 	}
 
 	getQueueFromId(id) {
@@ -263,13 +267,17 @@ class DomBuilder {
 		if (!description)
 			return queue.map.includes("Custom") ? "Custom" : "Other";
 		const d = description.toLowerCase();
-		return d.includes("flex")
-			? "Flex"
-			: (d.includes("solo")
-				? "Solo"
-				: (d.includes("aram")
-					? "ARAM"
-					: description));
+		if (d.includes("flex"))
+			return "Flex";
+		if (d.includes("solo"))
+			return "Solo";
+		if (d.includes("aram"))
+			return "ARAM";
+		if (d.includes("draft pick"))
+			return "Normal draft";
+		if (d.includes("bot"))
+			return "Bot game";
+		return description
 	}
 
 	getSummonerFromMatch(matchId) {

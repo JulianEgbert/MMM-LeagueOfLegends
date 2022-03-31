@@ -15,7 +15,7 @@ Module.register("MMM-LeagueOfLegends", {
 		imageFolder: "emblems",
 		queueType: "RANKED_SOLO_5x5",
 		iconSize: 256,
-		showOtherQueueIfNotFound: true,
+		showOtherQueueIfNotFound: false,
 		apiKey: "", // Required
 		summonerName: "", // Required
 		displayElements: [

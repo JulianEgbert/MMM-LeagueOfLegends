@@ -115,7 +115,7 @@ var config = {
 | `updateInterval` | *Optional* How often the module reloads. <br> **Default:** `60000` (10 minutes)
 | `language`       | *Optional* Language used for the *time* display (everything else is currently english only!). <br> **Default:** `en-EN`
 | `queueType`      | *Optional* The queue you want to display your Elo from. <br> **Possible values**: `"RANKED_SOLO_5x5"` (default, Solo-Queue), `"RANKED_FLEX_SR"` (Flex-Queue)
-| `showOtherQueueIfNotFound` | *Optional* Whether the module should display another queue elo if specified queue is not found. <br>**Type:** Boolean, default: `true`
+| `showOtherQueueIfNotFound` | *Optional* Whether the module should display another queue elo if specified queue is not found. <br>**Type:** Boolean, default: `false`
 
 
 ## Display Elements
