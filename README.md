@@ -112,7 +112,7 @@ var config = {
 | `imageFolder`    | *Optional* The path to the folder with the tier icons. <br /> **Possible values**: `"emblems"` (default, new icons), `"tiers"` (old icons), or your custom folder name if you add one.
 | `iconSize`       | *Optional* Size of the tier icon. <br /> **Default:** `256`
 | `startDelay`     | *Optional* Time to wait before starting the module. Necessary if you have multiple modules because the number of API calls is time restricted. <br /> **Default:** `0`
-| `updateInterval` | *Optional* How often the module reloads. <br /> **Default:** `60000` (10 minutes)
+| `updateInterval` | *Optional* How often the module reloads. <br /> **Default:** `300000` (5 minutes)
 | `language`       | *Optional* Language used for the *time* display (everything else is currently english only!). <br /> **Default:** `en-EN`
 | `queueType`      | *Optional* The queue you want to display your Elo from. <br /> **Possible values**: `"RANKED_SOLO_5x5"` (default, Solo-Queue), `"RANKED_FLEX_SR"` (Flex-Queue)
 | `showOtherQueueIfNotFound` | *Optional* Whether the module should display another queue elo if specified queue is not found. <br />**Type:** Boolean, default: `false`

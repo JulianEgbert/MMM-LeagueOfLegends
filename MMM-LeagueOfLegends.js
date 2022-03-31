@@ -7,7 +7,7 @@
 
 Module.register("MMM-LeagueOfLegends", {
 	defaults: {
-		updateInterval: 60000,
+		updateInterval: 300000,
 		startDelay: 0,
 		region: "euw1",
 		matchRegion: "europe",
