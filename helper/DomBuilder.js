@@ -344,7 +344,7 @@ class DomBuilder {
 			table.appendChild(this.getFriendRow((name)));
 		});
 		if (table.childNodes.length === 0) {
-			table.innerHTML = "<tr> No friends are ingame</tr>";
+			table.innerHTML = "<tr> No friends are ingame </tr>";
 		}
 		return table;
 	}
