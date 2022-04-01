@@ -351,12 +351,12 @@ class DomBuilder {
 
 	getFriendRow(name) {
 		const matchInfo = this.friendsData[name];
-		const player = matchInfo.participants.filter((p) => p.name === name)[0];
+		const player = matchInfo.participants.filter((p) => p.summonerName === name)[0];
 		const queue = this.getQueueFromId(matchInfo.gameQueueConfigId);
 		const duration = (Date.now() - matchInfo.gameStartTime) / 1000;
 		const row = document.createElement("tr");
 		const iconCol = document.createElement("td");
-		iconCol.appendChild(this.getChampionIcon(this.getChampionById(92), 32));
+		iconCol.appendChild(this.getChampionIcon(this.getChampionById(player.championId), 32));
 		row.appendChild(iconCol);
 		row.innerHTML += `
 		<td> ${name} </td>
