@@ -31,6 +31,10 @@
   max-width: 40vw;
 }
 
+.LoL-promo-game {
+  margin-left: 5px;
+}
+
 .LoL-Clash td:nth-child(2) {
   text-align: left;
 }

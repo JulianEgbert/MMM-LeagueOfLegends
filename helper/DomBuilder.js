@@ -244,9 +244,26 @@ class DomBuilder {
 			return wrapper;
 		}
 		// create the text with Tier, Division and LP if requested:
+		const q = this.queueData;
+		if (q && q.miniSeries) {
+			const miniSeriesDiv = document.createElement("div");
+			for (var i = 0; i < q.miniSeries.progress.length; i++) {
+				const game = q.miniSeries.progress[i]; // either "W", "L" or "N"
+				switch(game.toLowerCase()) {
+					case "w":
+						miniSeriesDiv.innerHTML += '<i class="fa fa-check LoL-promo-game"></i>';
+						break;
+					case "l":
+						miniSeriesDiv.innerHTML += '<i class="fa fa-times LoL-promo-game"></i>';
+						break;
+					case "n":
+						miniSeriesDiv.innerHTML += '<i class="fa fa-minus LoL-promo-game"></i>';
+				}
+			}
+			wrapper.appendChild(miniSeriesDiv);
+		}
 		const informationDiv = document.createElement("div");
 		var tierLabel = document.createElement("label");
-		const q = this.queueData;
 		if (q && q.tier) {
 			tierLabel.innerHTML = `${q.tier} ${q.rank} - ${q.leaguePoints} LP`;
 		} else {
