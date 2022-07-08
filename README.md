@@ -19,7 +19,7 @@ To use this module, you first need to sign up for the [Riotgames Developer Progr
 
 Next you need to register your Application with a `PERSONAL API KEY` by clicking the "Register Product"-Button on your Dashboard and selecting "Personal API Key". You then have to fillout a short from with information about the purpose of your "product" and submit this.
 
-For me, it took a few days to get my application registered.
+For me, it took a few days (about one week) to get my application approved.
 
 If your App is registered, you can head over to your "Apps" (by clicking on your username in the upper right corner and selecting "Apps") and choose your App on the left hand side. You should now see general Information about your App along with an "API-Key", looking something like this: `RGAPI-291b3053-432c-737l-28aj-416d3j21ag28` (not a real key, just an example!)
 
