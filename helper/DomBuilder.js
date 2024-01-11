@@ -235,7 +235,7 @@ class DomBuilder {
 		// create the icon:
 		let tierIcon = document.createElement("img");
 		const rankTier = this.getRankTier();
-		tierIcon.src = this.file(`img/${this.config.imageFolder}/${rankTier}.png`);
+		tierIcon.src = this.file(`img/emblems/${rankTier}.png`);
 		tierIcon.alt = rankTier;
 		tierIcon.width = tierIcon.height = this.config.iconSize;
 		wrapper.appendChild(tierIcon);

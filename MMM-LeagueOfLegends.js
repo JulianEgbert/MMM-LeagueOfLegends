@@ -12,7 +12,6 @@ Module.register("MMM-LeagueOfLegends", {
 		region: "euw1",
 		matchRegion: "europe",
 		language: "en-EN",
-		imageFolder: "emblems",
 		queueType: "RANKED_SOLO_5x5",
 		iconSize: 256,
 		showOtherQueueIfNotFound: false,
